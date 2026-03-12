@@ -1,0 +1,67 @@
+2026-03-11 13:53:53 | INFO     | ytd                  | YT Downloader Pro v2.0 ready
+2026-03-11 14:03:34 | INFO     | ytd                  | YT Downloader Pro v2.1 ready
+2026-03-11 14:16:17 | INFO     | ytd                  | YT Downloader Pro v2.1 ready
+2026-03-11 14:19:25 | INFO     | ytd                  | YT Downloader Pro v2.1 ready
+2026-03-11 14:35:24 | INFO     | ytd                  | YT Downloader Pro v2.1 ready
+2026-03-12 09:52:43 | INFO     | ytd                  | YT Downloader Pro v2.1 ready
+2026-03-12 09:52:53 | INFO     | ytd                  | YT Downloader Pro v2.1 ready
+2026-03-12 09:55:01 | INFO     | ytd                  | YT Downloader Pro v2.1 ready
+2026-03-12 09:59:21 | INFO     | ytd                  | YT Downloader Pro v2.1 ready
+2026-03-12 09:59:57 | INFO     | ytd                  | Started: Saiyaara Full Song | Ek Tha Tiger | Salman Khan, K
+2026-03-12 09:59:57 | DEBUG    | ytd                  | URL: https://www.youtube.com/watch?v=A5pSnIwbpaM  Format: bestvideo[ext=mp4][height<=240]+bestaudio[ext=m4a]/bestvideo[ext=mp4][height<=240]+bestaudio/bestvideo[height<=240]+bestaudio[ext=m4a]/bestvideo[height<=240]+bestaudio/best[ext=mp4][height<=240]/best[height<=240]/best
+2026-03-12 10:00:11 | INFO     | ytd                  | Started: Saiyaara Full Song | Ek Tha Tiger | Salman Khan, K
+2026-03-12 10:00:11 | DEBUG    | ytd                  | URL: https://www.youtube.com/watch?v=A5pSnIwbpaM  Format: bestaudio/best
+2026-03-12 10:00:15 | WARNING  | ytd                  | [yt-dlp] [youtube] No supported JavaScript runtime could be found. Only deno is enabled by default; to use another runtime add  --js-runtimes RUNTIME[:PATH]  to your command/config. YouTube extraction without a JS runtime has been deprecated, and some formats may be missing. See  https://github.com/yt-dlp/yt-dlp/wiki/EJS  for details on installing one
+2026-03-12 10:00:15 | WARNING  | ytd                  | [yt-dlp] [youtube] A5pSnIwbpaM: Some android_vr client https formats have been skipped as they are missing a URL. YouTube may have enabled the SABR-only streaming experiment for the current session. See  https://github.com/yt-dlp/yt-dlp/issues/12482  for more details
+2026-03-12 10:00:22 | WARNING  | ytd                  | [yt-dlp] [youtube] No supported JavaScript runtime could be found. Only deno is enabled by default; to use another runtime add  --js-runtimes RUNTIME[:PATH]  to your command/config. YouTube extraction without a JS runtime has been deprecated, and some formats may be missing. See  https://github.com/yt-dlp/yt-dlp/wiki/EJS  for details on installing one
+2026-03-12 10:01:42 | INFO     | ytd                  | Started: Tere Sang Yaara - Rustom | Akshay Kumar & Ileana D
+2026-03-12 10:01:42 | DEBUG    | ytd                  | URL: https://www.youtube.com/watch?v=5gwy0gcjIkI  Format: bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/bestvideo[ext=mp4][height<=720]+bestaudio/bestvideo[height<=720]+bestaudio[ext=m4a]/bestvideo[height<=720]+bestaudio/best[ext=mp4][height<=720]/best[height<=720]/best
+2026-03-12 10:01:44 | WARNING  | ytd                  | [yt-dlp] [youtube] No supported JavaScript runtime could be found. Only deno is enabled by default; to use another runtime add  --js-runtimes RUNTIME[:PATH]  to your command/config. YouTube extraction without a JS runtime has been deprecated, and some formats may be missing. See  https://github.com/yt-dlp/yt-dlp/wiki/EJS  for details on installing one
+2026-03-12 10:01:54 | INFO     | ytd                  | Started: Tere Sang Yaara - Rustom | Akshay Kumar & Ileana D
+2026-03-12 10:01:54 | DEBUG    | ytd                  | URL: https://www.youtube.com/watch?v=5gwy0gcjIkI  Format: bestvideo[ext=mp4][height<=1440]+bestaudio[ext=m4a]/bestvideo[ext=mp4][height<=1440]+bestaudio/bestvideo[height<=1440]+bestaudio[ext=m4a]/bestvideo[height<=1440]+bestaudio/best[ext=mp4][height<=1440]/best[height<=1440]/best
+2026-03-12 10:01:56 | WARNING  | ytd                  | [yt-dlp] [youtube] No supported JavaScript runtime could be found. Only deno is enabled by default; to use another runtime add  --js-runtimes RUNTIME[:PATH]  to your command/config. YouTube extraction without a JS runtime has been deprecated, and some formats may be missing. See  https://github.com/yt-dlp/yt-dlp/wiki/EJS  for details on installing one
+2026-03-12 10:06:39 | INFO     | ytd                  | Started: Alex Warren - Ordinary (Lyrics)
+2026-03-12 10:06:39 | DEBUG    | ytd                  | URL: https://www.youtube.com/watch?v=byxFUKxhT3s  Format: bestvideo[ext=mp4][height<=1440]+bestaudio[ext=m4a]/bestvideo[ext=mp4][height<=1440]+bestaudio/bestvideo[height<=1440]+bestaudio[ext=m4a]/bestvideo[height<=1440]+bestaudio/best[ext=mp4][height<=1440]/best[height<=1440]/best
+2026-03-12 10:06:50 | WARNING  | ytd                  | [yt-dlp] [youtube] ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')). Retrying (1/3)...
+2026-03-12 10:07:22 | WARNING  | ytd                  | [yt-dlp] [youtube] No supported JavaScript runtime could be found. Only deno is enabled by default; to use another runtime add  --js-runtimes RUNTIME[:PATH]  to your command/config. YouTube extraction without a JS runtime has been deprecated, and some formats may be missing. See  https://github.com/yt-dlp/yt-dlp/wiki/EJS  for details on installing one
+2026-03-12 10:16:30 | INFO     | Started: Alex Warren - Ordinary (Lyrics)
+2026-03-12 10:16:30 | DEBUG    | DL 97718248  fmt=bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/bestvideo[ext=mp4][height<=1080]+bestaudio/bestvideo[height<=1080]+bestaudio[ext=m4a]/bestvideo[height<=1080]+bestaudio/best[ext=mp4][height<=1080]/best[height<=1080]/best  url=https://www.youtube.com/watch?v=byxFUKxhT3s
+2026-03-12 10:16:34 | WARNING  | [yt-dlp] [youtube] No supported JavaScript runtime could be found. Only deno is enabled by default; to use another runtime add  --js-runtimes RUNTIME[:PATH]  to your command/config. YouTube extraction without a JS runtime has been deprecated, and some formats may be missing. See  https://github.com/yt-dlp/yt-dlp/wiki/EJS  for details on installing one
+2026-03-12 10:34:24 | INFO     | ytd                  | YT Downloader Pro v2.1 ready
+2026-03-12 10:37:38 | INFO     | ytd            | YT Downloader Pro v4.0 started
+2026-03-12 10:37:55 | INFO     | ytd            | YT Downloader Pro v4.0 started
+2026-03-12 11:04:36 | INFO     | ytd            | YT Downloader Pro v4.0 started
+2026-03-12 11:09:03 | INFO     | ytd            | YT Downloader Pro v4.0 started
+2026-03-12 11:34:38 | DEBUG    | ytd            | Created C:\Users\User\Desktop\git data\.vscode\settings.json
+2026-03-12 11:34:38 | DEBUG    | ytd            | Created C:\Users\User\Desktop\git data\.vscode\launch.json
+2026-03-12 11:34:38 | DEBUG    | ytd            | Created C:\Users\User\Desktop\git data\pyrightconfig.json
+2026-03-12 11:34:39 | INFO     | ytd            | YT Downloader Pro v5.0 started
+2026-03-12 11:40:08 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\.vscode\settings.json
+2026-03-12 11:40:08 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\.vscode\launch.json
+2026-03-12 11:40:08 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\pyrightconfig.json
+2026-03-12 11:40:08 | INFO     | ytd            | YT Downloader Pro v5.0 started
+2026-03-12 11:44:25 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\.vscode\settings.json
+2026-03-12 11:44:25 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\.vscode\launch.json
+2026-03-12 11:44:25 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\pyrightconfig.json
+2026-03-12 11:44:28 | INFO     | ytd            | YT Downloader Pro v5.0 started
+2026-03-12 11:53:35 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\.vscode\settings.json
+2026-03-12 11:53:35 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\.vscode\launch.json
+2026-03-12 11:53:35 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\pyrightconfig.json
+2026-03-12 11:53:36 | INFO     | ytd            | YT Downloader Pro v5.0 started
+2026-03-12 11:58:28 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\.vscode\settings.json
+2026-03-12 11:58:28 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\.vscode\launch.json
+2026-03-12 11:58:28 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\pyrightconfig.json
+2026-03-12 11:58:29 | INFO     | ytd            | YT Downloader Pro v5.0 started
+2026-03-12 12:05:38 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\.vscode\settings.json
+2026-03-12 12:05:38 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\.vscode\launch.json
+2026-03-12 12:05:38 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\pyrightconfig.json
+2026-03-12 12:05:38 | INFO     | ytd            | YT Downloader Pro v5.0 started
+2026-03-12 12:15:12 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\.vscode\settings.json
+2026-03-12 12:15:12 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\.vscode\launch.json
+2026-03-12 12:15:12 | DEBUG    | ytd            | Wrote C:\Users\User\Desktop\git data\pyrightconfig.json
+2026-03-12 12:15:13 | INFO     | ytd            | YT Downloader Pro v5.0 started
+2026-03-12 12:17:04 | INFO     | ytd            | YT Downloader Pro v4.0 started
+2026-03-12 12:18:58 | INFO     | ytd            | YT Downloader Pro v4.0 started
+2026-03-12 12:20:00 | INFO     | ytd            | YT Downloader Pro v4.0 started
+2026-03-12 12:21:39 | INFO     | ytd            | YT Downloader Pro v4.0 started
+2026-03-12 12:22:34 | INFO     | ytd            | YT Downloader Pro v4.0 started

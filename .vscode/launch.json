@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "YT Downloader Pro v5.0",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/YTD.py",
+      "python": "${command:python.interpreterPath}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "PYTHONIOENCODING": "utf-8",
+        "QT_ENABLE_HIGHDPI_SCALING": "1",
+        "QT_AUTO_SCREEN_SCALE_FACTOR": "1"
+      }
+    }
+  ]
+}

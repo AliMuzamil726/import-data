@@ -1,0 +1,20 @@
+{
+  "pythonVersion": "3.10",
+  "typeCheckingMode": "basic",
+  "reportArgumentType": "none",
+  "reportGeneralTypeIssues": "none",
+  "reportUnknownVariableType": "none",
+  "reportUnknownMemberType": "none",
+  "reportMissingModuleSource": "none",
+  "reportOptionalSubscript": "none",
+  "reportOptionalMemberAccess": "none",
+  "reportCallIssue": "none",
+  "reportSelfClsParameterName": "none",
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    "**/*.pyc",
+    "**/.*",
+    "logs/"
+  ]
+}

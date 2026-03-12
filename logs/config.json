@@ -1,0 +1,12 @@
+{
+  "output_dir": "C:\\Users\\User\\Downloads\\YTDownloaderPro",
+  "default_quality": "720p",
+  "default_vfmt": "mp4",
+  "default_afmt": "mp3",
+  "max_concurrent": 3,
+  "write_subs": false,
+  "sub_langs": "en",
+  "embed_subs": true,
+  "auto_clip": true,
+  "speed_limit_kb": 0
+}

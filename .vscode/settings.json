@@ -1,0 +1,36 @@
+{
+  "python.defaultInterpreterPath": "python",
+  "python.terminal.executeInFileDir": true,
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportArgumentType": "none",
+    "reportGeneralTypeIssues": "none",
+    "reportUnknownVariableType": "none",
+    "reportUnknownMemberType": "none",
+    "reportMissingModuleSource": "none",
+    "reportOptionalSubscript": "none",
+    "reportOptionalMemberAccess": "none",
+    "reportCallIssue": "none",
+    "reportSelfClsParameterName": "none",
+    "missingDefaultExcludes": "none"
+  },
+  "python.linting.enabled": false,
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.rulers": [
+    100
+  ],
+  "files.encoding": "utf8",
+  "terminal.integrated.env.windows": {
+    "PYTHONIOENCODING": "utf-8",
+    "QT_ENABLE_HIGHDPI_SCALING": "1"
+  },
+  "terminal.integrated.env.linux": {
+    "PYTHONIOENCODING": "utf-8",
+    "QT_ENABLE_HIGHDPI_SCALING": "1"
+  },
+  "terminal.integrated.env.osx": {
+    "PYTHONIOENCODING": "utf-8",
+    "QT_ENABLE_HIGHDPI_SCALING": "1"
+  }
+}
