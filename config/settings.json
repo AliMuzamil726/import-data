@@ -1,0 +1,18 @@
+{
+    "protected_folder": "C:/Users/User/Desktop/data",
+    "password_hash": "be282502fea1657c932a60db24b54692c7fa41cf1a8695f123e2dfed29d2d8a5",
+    "password_salt": "6137cf6ef16849b137c1aba37b7618c4bdc163ac91e43388e5642f5a53d122cb",
+    "auto_start_protection": false,
+    "process_poll_interval": 5,
+    "usb_poll_interval": 3,
+    "ransomware_event_threshold": 20,
+    "ransomware_window_seconds": 10,
+    "max_login_attempts": 3,
+    "lockout_duration_seconds": 60,
+    "screenshot_on_intrusion": true,
+    "enable_system_tray": true,
+    "theme": "dark",
+    "log_level": "INFO",
+    "alarm_sound_file": "assets/alarm.wav",
+    "version": "1.0.0"
+}

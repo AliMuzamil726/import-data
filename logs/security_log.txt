@@ -1,0 +1,75 @@
+2026-03-14 09:29:29  INFO      [SYSTEM]  Initialising default password.
+2026-03-14 09:29:30  INFO      [SYSTEM]  Master password updated.
+2026-03-14 09:29:31  INFO      [SYSTEM]  TitanShield Security System v1.0.0 initialised
+2026-03-14 09:29:45  INFO      [SYSTEM]  TitanShield shutting down
+2026-03-14 09:29:45  INFO      [SYSTEM]  Monitoring stopped
+2026-03-14 09:30:26  INFO      [SYSTEM]  TitanShield Security System v1.0.0 initialised
+2026-03-14 09:30:51  INFO      [SYSTEM]  TitanShield shutting down
+2026-03-14 09:30:51  INFO      [SYSTEM]  Monitoring stopped
+2026-03-14 09:31:34  INFO      [SYSTEM]  TitanShield Security System v1.0.0 initialised
+2026-03-14 09:31:56  INFO      [SYSTEM]  TitanShield Security System v1.0.0 initialised
+2026-03-14 09:32:35  INFO      [SYSTEM]  Monitoring started: 'C:/Users/User/Desktop/data' (backend=watchdog)
+2026-03-14 09:32:35  INFO      [SYSTEM]  Process monitor started
+2026-03-14 09:32:35  INFO      [SYSTEM]  USB monitor started
+2026-03-14 09:32:55  INFO      [FILE MODIFIED]  'C:/Users/User/Desktop/data\\data 1.docx'
+2026-03-14 09:32:55  INFO      [FILE MODIFIED]  'C:/Users/User/Desktop/data\\data 2.docx'
+2026-03-14 09:32:56  INFO      [FILE MODIFIED]  'C:/Users/User/Desktop/data\\data 3.docx'
+2026-03-14 09:32:56  INFO      [SYSTEM]  Alarm started [NORMAL]
+2026-03-14 09:32:56  WARNING   ──────────────────────────────────────────────────────────────────────
+[2026-03-14 09:32:56]
+
+⚠  SECURITY ALERT
+Intrusion Type : Unauthorized File Modified
+Severity       : HIGH
+Host           : ALI-MUZAMIL
+User           : User
+Description    : File: C:/Users/User/Desktop/data\data 2.docx
+File Target    : C:/Users/User/Desktop/data\data 2.docx
+Process        : Unknown
+Action Taken   : Folder Locked + Alarm Activated
+──────────────────────────────────────────────────────────────────────
+2026-03-14 09:32:56  WARNING   ──────────────────────────────────────────────────────────────────────
+[2026-03-14 09:32:56]
+
+⚠  SECURITY ALERT
+Intrusion Type : Unauthorized File Modified
+Severity       : HIGH
+Host           : ALI-MUZAMIL
+User           : User
+Description    : File: C:/Users/User/Desktop/data\data 1.docx
+File Target    : C:/Users/User/Desktop/data\data 1.docx
+Process        : Unknown
+Action Taken   : Folder Locked + Alarm Activated
+──────────────────────────────────────────────────────────────────────
+2026-03-14 09:32:57  INFO      [SYSTEM]  [FolderLock] Locked: C:\Users\User\Desktop\data
+2026-03-14 09:33:01  INFO      [FILE MODIFIED]  'C:/Users/User/Desktop/data\\.backup_vault\\.baseline.db'
+2026-03-14 09:33:03  WARNING   ──────────────────────────────────────────────────────────────────────
+[2026-03-14 09:33:01]
+
+⚠  SECURITY ALERT
+Intrusion Type : Unauthorized File Modified
+Severity       : HIGH
+Host           : ALI-MUZAMIL
+User           : User
+Description    : File: C:/Users/User/Desktop/data\data 3.docx
+File Target    : C:/Users/User/Desktop/data\data 3.docx
+Process        : Unknown
+Action Taken   : Folder Locked + Alarm Activated
+──────────────────────────────────────────────────────────────────────
+2026-03-14 09:33:04  INFO      [SYSTEM]  Screenshot saved: logs\screenshots\screenshot_intrusion_20260314_093256.png
+2026-03-14 09:33:04  WARNING   ──────────────────────────────────────────────────────────────────────
+[2026-03-14 09:33:03]
+
+⚠  SECURITY ALERT
+Intrusion Type : Unauthorized File Modified
+Severity       : HIGH
+Host           : ALI-MUZAMIL
+User           : User
+Description    : File: C:/Users/User/Desktop/data\.backup_vault\.baseline.db
+File Target    : C:/Users/User/Desktop/data\.backup_vault\.baseline.db
+Process        : Unknown
+Action Taken   : Folder Locked + Alarm Activated
+──────────────────────────────────────────────────────────────────────
+2026-03-14 09:33:08  INFO      [SYSTEM]  Screenshot saved: logs\screenshots\screenshot_intrusion_20260314_093304.png
+2026-03-14 09:33:10  INFO      [SYSTEM]  Screenshot saved: logs\screenshots\screenshot_intrusion_20260314_093309.png
+2026-03-14 09:33:12  INFO      [SYSTEM]  Screenshot saved: logs\screenshots\screenshot_intrusion_20260314_093310.png
