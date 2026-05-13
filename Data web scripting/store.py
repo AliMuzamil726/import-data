@@ -22,4 +22,6 @@ else:
                 print(f"\nCustomer ID: {customer_id}")
                 print(group)
     except Exception as e:
-        print(f"An error occurred while reading the file: {e}")
+        print(f"An error occurred while reading the file: {e}")     
+
+            #add new data
