@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-3xl">
+  <div class="mb-5 flex items-end justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-semibold tracking-tight text-slate-900">Notifications</h2>
+      <p class="mt-0.5 text-sm text-slate-500">Alerts raised by registrations, weather thresholds and imagery processing.</p>
+    </div>
+    <button type="button" @click="markAllRead()" class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-700 shadow-card transition hover:border-brand-300">Mark all read</button>
+  </div>
+
+  <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+    <ul class="divide-y divide-slate-50">
+      {% for note in notifications %}
+        <li class="flex items-start gap-3 px-5 py-4 {% if not note.is_read %}bg-brand-50/30{% endif %}">
+          <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full
+            {% if note.level == 'critical' %}bg-rose-500{% elif note.level == 'warning' %}bg-amber-500{% elif note.level == 'success' %}bg-emerald-500{% else %}bg-slate-300{% endif %}"></span>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-medium text-slate-900">{{ note.title }}</p>
+            {% if note.body %}<p class="mt-0.5 text-sm text-slate-600">{{ note.body }}</p>{% endif %}
+            <p class="mt-1 text-xs text-slate-400">{{ note.created_at|date:"d M Y, H:i" }}{% if note.category %} · {{ note.category }}{% endif %}</p>
+          </div>
+          {% if note.url %}<a href="{{ note.url }}" class="shrink-0 text-xs font-medium text-brand-700 hover:underline">Open</a>{% endif %}
+        </li>
+      {% empty %}
+        <li class="px-5 py-14 text-center">
+          <p class="text-sm font-medium text-slate-700">Nothing to review.</p>
+          <p class="mt-1 text-sm text-slate-500">New registrations, weather warnings and NDVI alerts land here.</p>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}{{ object.name }}{% endblock %}
+{% block content %}
+<div class="mb-5 flex flex-wrap items-start justify-between gap-3">
+  <div>
+    <a href="{% url 'crops:list' %}" class="text-sm text-slate-500 transition hover:text-brand-700">&larr; Crops</a>
+    <h2 class="text-xl font-semibold tracking-tight text-slate-900">{{ object.name }} {{ object.variety }}</h2>
+    <p class="text-sm text-slate-500">
+      <a href="{{ object.field.get_absolute_url }}" class="hover:text-brand-700">{{ object.field.code }}</a>
+      · {{ object.field.farmer.full_name }} · {{ object.get_season_display }}
+    </p>
+  </div>
+  <div class="flex gap-2">
+    {% if request.user.can_edit_records %}<a href="{% url 'crops:update' object.pk %}" class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-700 shadow-card transition hover:border-brand-300">Edit</a>{% endif %}
+    {% if request.user.can_delete_records %}<a href="{% url 'crops:delete' object.pk %}" class="rounded-xl border border-rose-200 bg-white px-3.5 py-2 text-sm text-rose-600 shadow-card transition hover:bg-rose-50">Delete</a>{% endif %}
+  </div>
+</div>
+
+<div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-card">
+    <p class="text-xs uppercase tracking-wider text-slate-400">Area sown</p>
+    <p class="mt-1 text-xl font-semibold text-slate-900">{{ object.area_acres }} ac</p>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-card">
+    <p class="text-xs uppercase tracking-wider text-slate-400">Production</p>
+    <p class="mt-1 text-xl font-semibold text-slate-900">{{ object.production_tonnes }} t</p>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-card">
+    <p class="text-xs uppercase tracking-wider text-slate-400">Yield</p>
+    <p class="mt-1 text-xl font-semibold text-slate-900">{{ object.yield_per_acre }} t/ac</p>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-card">
+    <p class="text-xs uppercase tracking-wider text-slate-400">Revenue</p>
+    <p class="mt-1 text-xl font-semibold text-slate-900">PKR {{ object.revenue|floatformat:0|intcomma }}</p>
+  </div>
+</div>
+
+<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+    <h3 class="mb-4 text-sm font-semibold text-slate-900">Cycle</h3>
+    <dl class="flex flex-col gap-3 text-sm">
+      <div class="flex justify-between gap-4"><dt class="text-slate-500">Category</dt><dd>{{ object.get_category_display }}</dd></div>
+      <div class="flex justify-between gap-4"><dt class="text-slate-500">Planted</dt><dd>{{ object.planting_date|date:"d M Y" }}</dd></div>
+      <div class="flex justify-between gap-4"><dt class="text-slate-500">Expected harvest</dt><dd>{{ object.expected_harvest_date|date:"d M Y"|default:"—" }}</dd></div>
+      <div class="flex justify-between gap-4"><dt class="text-slate-500">Actual harvest</dt><dd>{{ object.actual_harvest_date|date:"d M Y"|default:"—" }}</dd></div>
+      <div class="flex justify-between gap-4"><dt class="text-slate-500">Price</dt><dd>PKR {{ object.price_per_tonne|intcomma }}/t</dd></div>
+      <div class="flex justify-between gap-4"><dt class="text-slate-500">Status</dt><dd>{{ object.get_status_display }}</dd></div>
+      {% if object.days_to_harvest is not None %}
+        <div class="flex justify-between gap-4"><dt class="text-slate-500">Days to harvest</dt><dd>{{ object.days_to_harvest }}</dd></div>
+      {% endif %}
+    </dl>
+    {% if object.notes %}<p class="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-600">{{ object.notes }}</p>{% endif %}
+  </div>
+
+  <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card lg:col-span-2">
+    <div class="border-b border-slate-100 px-5 py-3.5"><h3 class="text-sm font-semibold text-slate-900">Operations on this crop</h3></div>
+    <ul class="divide-y divide-slate-50">
+      {% for activity in activities %}
+        <li class="px-5 py-3">
+          <p class="text-sm font-medium text-slate-800">{{ activity.get_kind_display }}{% if activity.detail %} — {{ activity.detail }}{% endif %}</p>
+          <p class="text-xs text-slate-400">{{ activity.performed_on|date:"d M Y" }}{% if activity.quantity %} · {{ activity.quantity }} {{ activity.unit }}{% endif %}</p>
+        </li>
+      {% empty %}
+        <li class="px-5 py-10 text-center text-sm text-slate-500">
+          No operations linked to this cycle. Log them from the field page.
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{# ── Field NDVI card ─────────────────────────────────────────── #}
+<div class="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+  <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+    <div class="flex items-center gap-2">
+      <h3 class="text-sm font-semibold text-slate-900">Field vegetation index (NDVI)</h3>
+      {% if latest_ndvi and latest_ndvi.index_used == "EST-NDVI" %}
+        <span class="rounded-full bg-soil-100 px-2 py-0.5 text-[11px] font-medium text-soil-700"
+              title="Estimated from soil, irrigation and status — not satellite imagery.">Estimated</span>
+      {% elif latest_ndvi %}
+        <span class="rounded-full bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-700">Satellite</span>
+      {% endif %}
+    </div>
+    {% if ndvi_field %}
+      <a href="{{ ndvi_field.get_absolute_url }}" class="text-xs font-medium text-brand-700 hover:underline">Field: {{ ndvi_field.code }}</a>
+    {% endif %}
+  </div>
+
+  {% if latest_ndvi and latest_ndvi.mean_index is not None %}
+    <div class="grid grid-cols-1 gap-5 p-5 lg:grid-cols-3">
+      <!-- Mean + band -->
+      <div class="flex flex-col justify-center rounded-2xl bg-slate-50 p-5 text-center">
+        <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Mean NDVI</p>
+        <p class="mt-1 text-4xl font-semibold text-slate-900">{{ latest_ndvi.mean_index|floatformat:2 }}</p>
+        {% with band=object.field.get_health_display %}
+          <p class="mt-2 inline-flex items-center justify-center gap-1.5 text-sm font-medium">
+            <span class="h-2.5 w-2.5 rounded-full" style="background: {{ object.field.health_colour }}"></span>
+            {{ band }}
+          </p>
+        {% endwith %}
+        <p class="mt-2 text-xs text-slate-400">Health score {{ latest_ndvi.health_score|floatformat:0 }} / 100</p>
+      </div>
+
+      <!-- Class distribution -->
+      <div class="lg:col-span-2">
+        <p class="mb-3 text-xs font-medium uppercase tracking-wider text-slate-400">Canopy class distribution</p>
+        <div class="flex flex-col gap-2.5">
+          {% for label, pct, colour in latest_ndvi.distribution_rows %}
+            <div class="flex items-center gap-3">
+              <span class="w-16 shrink-0 text-xs text-slate-500">{{ label }}</span>
+              <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100">
+                <div class="h-full rounded-full" style="width: {{ pct }}%; background: {{ colour }}"></div>
+              </div>
+              <span class="w-10 shrink-0 text-right text-xs tabular-nums text-slate-600">{{ pct|floatformat:0 }}%</span>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-slate-400">
+          <span>Range {{ latest_ndvi.min_index|floatformat:2 }} – {{ latest_ndvi.max_index|floatformat:2 }}</span>
+          <span>Captured {{ latest_ndvi.captured_on|date:"d M Y" }}</span>
+          <span>{{ latest_ndvi.source }}</span>
+        </div>
+      </div>
+    </div>
+
+    {% if latest_ndvi.index_used == "EST-NDVI" %}
+      <p class="border-t border-slate-100 bg-soil-100/40 px-5 py-2.5 text-xs text-soil-700">
+        This is an <strong>estimate</strong> derived from the field's soil, irrigation and status — useful as a
+        placeholder, but not a substitute for real satellite NDVI. Connect a satellite source later to replace it.
+      </p>
+    {% endif %}
+  {% else %}
+    <div class="p-8 text-center">
+      <p class="text-sm font-medium text-slate-700">No NDVI for this field yet.</p>
+      <p class="mx-auto mt-1 max-w-md text-sm text-slate-500">
+        Estimated NDVI is generated when a field is saved with coordinates.
+        {% if ndvi_field %}Open <a href="{{ ndvi_field.get_absolute_url }}" class="text-brand-700 hover:underline">{{ ndvi_field.code }}</a> and save it to generate one.{% endif %}
+      </p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

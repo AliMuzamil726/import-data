@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Delete {{ object.full_name }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-lg rounded-2xl border border-rose-200 bg-white p-6 shadow-card">
+  <h2 class="text-lg font-semibold text-slate-900">Delete {{ object.full_name }}?</h2>
+  <p class="mt-2 text-sm text-slate-600">
+    This removes the farmer, their {{ object.fields.count }} field{{ object.fields.count|pluralize }},
+    and every crop cycle, activity and NDVI scene attached to those fields. It cannot be undone.
+  </p>
+  <form method="post" class="mt-6 flex justify-end gap-2">
+    {% csrf_token %}
+    <a href="{{ object.get_absolute_url }}" class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600 transition hover:bg-slate-50">Keep record</a>
+    <button type="submit" class="rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-rose-500">Delete permanently</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Deactivate {{ object.display_name }}{% endblock %}
+{% block content %}
+<div class="mx-auto max-w-lg rounded-2xl border border-amber-200 bg-white p-6 shadow-card">
+  <h2 class="text-lg font-semibold text-slate-900">Deactivate {{ object.display_name }}?</h2>
+  <p class="mt-2 text-sm text-slate-600">
+    They will no longer be able to sign in. Records they created stay in place, and you can
+    reactivate the account later from the edit screen.
+  </p>
+  <form method="post" class="mt-6 flex justify-end gap-2">
+    {% csrf_token %}
+    <a href="{% url 'accounts:user_list' %}" class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600 transition hover:bg-slate-50">Cancel</a>
+    <button type="submit" class="rounded-xl bg-amber-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-amber-500">Deactivate account</button>
+  </form>
+</div>
+{% endblock %}

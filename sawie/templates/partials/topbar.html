@@ -1,0 +1,130 @@
+<header class="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/85 px-4 backdrop-blur sm:px-6 lg:px-8">
+  <button type="button" @click="sidebarOpen = !sidebarOpen"
+          class="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 lg:hidden"
+          aria-label="Toggle navigation">
+    <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+
+  <div class="min-w-0 flex-1">
+    <p class="truncate text-xs font-medium uppercase tracking-[0.14em] text-slate-400">
+      {{ active_module|default:"overview" }}
+    </p>
+  </div>
+
+  <div class="flex items-center gap-1.5">
+    <span class="hidden items-center gap-1.5 rounded-full border border-slate-200 px-2.5 py-1 text-[11px] font-medium text-slate-500 sm:flex">
+      <span class="h-1.5 w-1.5 rounded-full transition"
+            :class="connected ? 'bg-emerald-500' : 'bg-slate-300'"></span>
+      <span x-text="connected ? 'Live' : 'Polling'"></span>
+    </span>
+
+    <!-- Theme switcher: dark/light + accent colour -->
+    <div class="relative" @click.outside="themeOpen = false">
+      <button type="button" @click="themeOpen = !themeOpen"
+              class="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100"
+              aria-label="Theme">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M2 12h2m16 0h2m-3.5-6.5-1.4 1.4M6.9 17.1l-1.4 1.4m0-13 1.4 1.4m10.2 10.2 1.4 1.4"/>
+        </svg>
+      </button>
+      <div x-show="themeOpen" x-cloak x-transition
+           class="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-lift">
+        <p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Mode</p>
+        <div class="mb-3 flex gap-1.5">
+          <button type="button" @click="setMode('light')"
+                  class="flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition"
+                  :class="mode === 'light' ? 'border-brand-400 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">Light</button>
+          <button type="button" @click="setMode('dark')"
+                  class="flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition"
+                  :class="mode === 'dark' ? 'border-brand-400 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">Dark</button>
+        </div>
+        <p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Accent</p>
+        <div class="flex gap-2">
+          <button type="button" @click="setAccent('green')" title="Green"
+                  class="h-7 w-7 rounded-full ring-2 ring-offset-2 transition"
+                  :class="accent === 'green' ? 'ring-slate-400' : 'ring-transparent'"
+                  style="background:#4A7129"></button>
+          <button type="button" @click="setAccent('blue')" title="Blue"
+                  class="h-7 w-7 rounded-full ring-2 ring-offset-2 transition"
+                  :class="accent === 'blue' ? 'ring-slate-400' : 'ring-transparent'"
+                  style="background:#2563EB"></button>
+          <button type="button" @click="setAccent('amber')" title="Amber"
+                  class="h-7 w-7 rounded-full ring-2 ring-offset-2 transition"
+                  :class="accent === 'amber' ? 'ring-slate-400' : 'ring-transparent'"
+                  style="background:#D97706"></button>
+          <button type="button" @click="setAccent('violet')" title="Violet"
+                  class="h-7 w-7 rounded-full ring-2 ring-offset-2 transition"
+                  :class="accent === 'violet' ? 'ring-slate-400' : 'ring-transparent'"
+                  style="background:#7C3AED"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+      <button type="button" @click="open = !open; if (open) markSeen()"
+              class="relative rounded-lg p-2 text-slate-500 transition hover:bg-slate-100"
+              aria-label="Notifications">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-2.1a2 2 0 0 1-.35-1.13V10a5.25 5.25 0 1 0-10.5 0v3.77c0 .4-.12.79-.35 1.12L6 17h5m4 0v.75a3 3 0 0 1-6 0V17m6 0H9"/></svg>
+        <span x-show="unread > 0" x-cloak
+              class="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-rose-500 px-1 text-[10px] font-semibold text-white"
+              x-text="unread > 9 ? '9+' : unread"></span>
+      </button>
+
+      <div x-show="open" x-cloak x-transition
+           class="absolute right-0 mt-2 w-80 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lift">
+        <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+          <p class="text-sm font-semibold text-slate-900">Notifications</p>
+          <button type="button" @click="markAllRead()"
+                  class="text-xs font-medium text-brand-700 hover:underline">Mark all read</button>
+        </div>
+        <div class="max-h-80 overflow-y-auto">
+          <template x-if="items.length === 0">
+            <p class="px-4 py-6 text-center text-sm text-slate-500">Nothing new. Alerts appear here as they happen.</p>
+          </template>
+          <template x-for="item in items" :key="item.id">
+            <a :href="item.url || '#'" class="flex gap-3 border-b border-slate-50 px-4 py-3 transition hover:bg-slate-50">
+              <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full"
+                    :class="{
+                      'bg-emerald-500': item.level === 'success',
+                      'bg-amber-500': item.level === 'warning',
+                      'bg-rose-500': item.level === 'critical',
+                      'bg-slate-300': item.level === 'info'
+                    }"></span>
+              <span class="min-w-0">
+                <span class="block truncate text-sm font-medium text-slate-900" x-text="item.title"></span>
+                <span class="block text-xs text-slate-500" x-text="item.body"></span>
+                <span class="mt-0.5 block text-[11px] text-slate-400" x-text="item.created_at"></span>
+              </span>
+            </a>
+          </template>
+        </div>
+        <a href="{% url 'core:notifications' %}"
+           class="block bg-slate-50 px-4 py-2.5 text-center text-xs font-medium text-slate-600 hover:text-brand-700">See all</a>
+      </div>
+    </div>
+
+    <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+      <button type="button" @click="open = !open"
+              class="flex items-center gap-2 rounded-lg p-1.5 pr-2 transition hover:bg-slate-100">
+        {% if request.user.avatar %}
+          <img src="{{ request.user.avatar.url }}" alt="" class="h-7 w-7 rounded-full object-cover">
+        {% else %}
+          <span class="grid h-7 w-7 place-items-center rounded-full bg-brand-100 text-[11px] font-semibold text-brand-800">{{ request.user.initials }}</span>
+        {% endif %}
+        <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div x-show="open" x-cloak x-transition
+           class="absolute right-0 mt-2 w-52 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lift">
+        <p class="px-4 py-2 text-xs text-slate-500">{{ request.user.email|default:request.user.username }}</p>
+        <a href="{% url 'accounts:profile' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Your profile</a>
+        {% if request.user.is_superuser %}
+          <a href="/admin/" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Django admin</a>
+        {% endif %}
+        <form method="post" action="{% url 'accounts:logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="w-full px-4 py-2 text-left text-sm text-rose-600 hover:bg-rose-50">Sign out</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</header>

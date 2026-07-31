@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Farmers{% endblock %}
+
+{% block content %}
+<div class="mb-5 flex flex-wrap items-end justify-between gap-3">
+  <div>
+    <h2 class="text-xl font-semibold tracking-tight text-slate-900">Farmers</h2>
+    <p class="mt-0.5 text-sm text-slate-500">{{ total_count|intcomma }} registered · {{ page_obj.paginator.count|intcomma }} match your filters</p>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <div class="flex overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card">
+      <a href="{% url 'farmers:export' 'csv' %}?{{ request.GET.urlencode }}" class="px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-50">CSV</a>
+      <a href="{% url 'farmers:export' 'xlsx' %}?{{ request.GET.urlencode }}" class="border-l border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-50">Excel</a>
+      <a href="{% url 'farmers:export' 'pdf' %}?{{ request.GET.urlencode }}" class="border-l border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-50">PDF</a>
+    </div>
+    {% if request.user.can_edit_records %}
+      <a href="{% url 'farmers:create' %}" class="rounded-xl bg-brand-600 px-3.5 py-2 text-sm font-medium text-white shadow-card transition hover:bg-brand-500">Add farmer</a>
+    {% endif %}
+  </div>
+</div>
+
+<form method="get" class="mb-4 grid grid-cols-1 gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-card sm:grid-cols-[1fr_auto_auto_auto_auto]">
+  <input type="search" name="q" value="{{ query }}" placeholder="Search name, CNIC, phone or village"
+         class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+  <select name="status" class="rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none">
+    <option value="">All statuses</option>
+    {% for value, label in statuses %}
+      <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <select name="city" class="rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none">
+    <option value="">All cities</option>
+    {% for name in cities %}
+      <option value="{{ name }}" {% if city == name %}selected{% endif %}>{{ name }}</option>
+    {% endfor %}
+  </select>
+  <select name="sort" class="rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none">
+    <option value="full_name" {% if sort == "full_name" %}selected{% endif %}>Name A → Z</option>
+    <option value="-full_name" {% if sort == "-full_name" %}selected{% endif %}>Name Z → A</option>
+    <option value="-registration_date" {% if sort == "-registration_date" %}selected{% endif %}>Newest added</option>
+    <option value="registration_date" {% if sort == "registration_date" %}selected{% endif %}>Oldest added</option>
+    <option value="-total_land_acres" {% if sort == "-total_land_acres" %}selected{% endif %}>Most land</option>
+    <option value="total_land_acres" {% if sort == "total_land_acres" %}selected{% endif %}>Least land</option>
+    <option value="city" {% if sort == "city" %}selected{% endif %}>City A → Z</option>
+  </select>
+  <div class="flex gap-2">
+    <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700">Apply</button>
+    {% if query or status or city %}
+      <a href="{% url 'farmers:list' %}" class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600 transition hover:bg-slate-50">Clear</a>
+    {% endif %}
+  </div>
+</form>
+
+<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+  <div class="overflow-x-auto">
+    <table class="data-table w-full text-sm">
+      <thead class="border-b border-slate-100 bg-slate-50/60">
+        <tr>
+          <th class="px-5 py-3 text-left">SAWiE ID</th>
+          <th class="px-5 py-3 text-left">Farmer</th>
+          <th class="px-5 py-3 text-left">CNIC</th>
+          <th class="px-5 py-3 text-left">Contact</th>
+          <th class="px-5 py-3 text-left">Location</th>
+          <th class="px-5 py-3 text-right">Land</th>
+          <th class="px-5 py-3 text-right">Fields</th>
+          <th class="px-5 py-3 text-left">Status</th>
+          <th class="px-5 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-50">
+        {% for farmer in farmers %}
+          <tr>
+            <td class="px-5 py-3">
+              <span class="rounded-lg bg-brand-50 px-2 py-1 text-xs font-semibold text-brand-700">{{ farmer.sawie_id|default:"—" }}</span>
+            </td>
+            <td class="px-5 py-3">
+              <div class="flex items-center gap-3">
+                {% if farmer.profile_image %}
+                  <img src="{{ farmer.profile_image.url }}" alt="" class="h-9 w-9 rounded-full object-cover">
+                {% else %}
+                  <span class="grid h-9 w-9 place-items-center rounded-full bg-brand-50 text-xs font-semibold text-brand-700">{{ farmer.initials }}</span>
+                {% endif %}
+                <div class="min-w-0">
+                  <a href="{{ farmer.get_absolute_url }}" class="block truncate font-medium text-slate-900 hover:text-brand-700">{{ farmer.full_name }}</a>
+                  <span class="block truncate text-xs text-slate-400">s/o {{ farmer.father_name|default:"—" }}</span>
+                </div>
+              </div>
+            </td>
+            <td class="px-5 py-3 tabular-nums text-slate-600">{{ farmer.cnic }}</td>
+            <td class="px-5 py-3 text-slate-600">
+              {{ farmer.phone }}
+              {% if farmer.email %}<span class="block text-xs text-slate-400">{{ farmer.email }}</span>{% endif %}
+            </td>
+            <td class="px-5 py-3 text-slate-600">
+              {{ farmer.city }}
+              {% if farmer.village %}<span class="block text-xs text-slate-400">{{ farmer.village }}</span>{% endif %}
+            </td>
+            <td class="px-5 py-3 text-right tabular-nums text-slate-700">{{ farmer.total_land_acres }} ac</td>
+            <td class="px-5 py-3 text-right tabular-nums text-slate-700">{{ farmer.field_count }}</td>
+            <td class="px-5 py-3">
+              <span class="rounded-full px-2 py-0.5 text-xs font-medium
+                {% if farmer.status == 'active' %}bg-emerald-50 text-emerald-700
+                {% elif farmer.status == 'pending' %}bg-amber-50 text-amber-700
+                {% else %}bg-slate-100 text-slate-600{% endif %}">{{ farmer.get_status_display }}</span>
+            </td>
+            <td class="px-5 py-3 text-right">
+              <div class="flex justify-end gap-1">
+                {% if request.user.can_edit_records %}
+                  <a href="{% url 'farmers:update' farmer.pk %}" class="rounded-lg px-2 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100">Edit</a>
+                {% endif %}
+                {% if request.user.can_delete_records %}
+                  <a href="{% url 'farmers:delete' farmer.pk %}" class="rounded-lg px-2 py-1 text-xs font-medium text-rose-600 transition hover:bg-rose-50">Delete</a>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="9" class="px-5 py-14 text-center">
+            <p class="text-sm font-medium text-slate-700">No farmers match this search.</p>
+            <p class="mt-1 text-sm text-slate-500">Clear the filters, or add the first record.</p>
+            {% if request.user.can_edit_records %}
+              <a href="{% url 'farmers:create' %}" class="mt-4 inline-block rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-500">Add farmer</a>
+            {% endif %}
+          </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

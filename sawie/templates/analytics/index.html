@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Analytics{% endblock %}
+
+{% block content %}
+<div class="mb-5 flex flex-wrap items-end justify-between gap-3">
+  <div>
+    <h2 class="text-xl font-semibold tracking-tight text-slate-900">Analytics</h2>
+    <p class="mt-0.5 text-sm text-slate-500">Aggregated across {{ totals.farmers|intcomma }} farmers and {{ totals.fields|intcomma }} fields.</p>
+  </div>
+  <form method="get" class="flex gap-2">
+    <select name="months" onchange="this.form.submit()"
+            class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-card focus:border-brand-500 focus:outline-none">
+      <option value="6" {% if months == 6 %}selected{% endif %}>Last 6 months</option>
+      <option value="12" {% if months == 12 %}selected{% endif %}>Last 12 months</option>
+      <option value="24" {% if months == 24 %}selected{% endif %}>Last 24 months</option>
+    </select>
+  </form>
+</div>
+
+<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-card">
+    <p class="text-xs uppercase tracking-wider text-slate-400">Mapped area</p>
+    <p class="mt-1 text-xl font-semibold text-slate-900">{{ totals.acres|floatformat:1|intcomma }} ac</p>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-card">
+    <p class="text-xs uppercase tracking-wider text-slate-400">Production</p>
+    <p class="mt-1 text-xl font-semibold text-slate-900">{{ totals.production|floatformat:1|intcomma }} t</p>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-card">
+    <p class="text-xs uppercase tracking-wider text-slate-400">Farm-gate value</p>
+    <p class="mt-1 text-xl font-semibold text-slate-900">PKR {{ totals.revenue|floatformat:0|intcomma }}</p>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-card">
+    <p class="text-xs uppercase tracking-wider text-slate-400">Farmers</p>
+    <p class="mt-1 text-xl font-semibold text-slate-900">{{ totals.farmers|intcomma }}</p>
+  </div>
+</div>
+
+<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+    <h3 class="mb-4 text-sm font-semibold text-slate-900">Farmer growth</h3>
+    <div id="chart-farmers" class="h-72"></div>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+    <h3 class="mb-4 text-sm font-semibold text-slate-900">Crop distribution by area</h3>
+    <div id="chart-crops" class="h-72"></div>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+    <h3 class="mb-4 text-sm font-semibold text-slate-900">Production and revenue</h3>
+    <div id="chart-production" class="h-72"></div>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+    <h3 class="mb-4 text-sm font-semibold text-slate-900">Yield per acre by crop</h3>
+    <div id="chart-yield" class="h-72"></div>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+    <h3 class="mb-4 text-sm font-semibold text-slate-900">Area by soil and irrigation</h3>
+    <div id="chart-area" class="h-72"></div>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+    <h3 class="mb-4 text-sm font-semibold text-slate-900">Weather conditions over time</h3>
+    <div id="chart-weather" class="h-72"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.54.1/dist/apexcharts.min.js"></script>
+{{ payload_json|json_script:"analytics-data" }}
+<script>
+(function () {
+  const data = JSON.parse(document.getElementById('analytics-data').textContent);
+  const grid = { borderColor: '#E5E7EB', strokeDashArray: 4 };
+  const axisStyle = { style: { colors: '#64748B', fontSize: '11px' } };
+  const base = { toolbar: { show: false }, fontFamily: 'Inter, sans-serif' };
+  const empty = { text: 'Not enough data yet', style: { color: '#94A3B8' } };
+
+  new ApexCharts(document.getElementById('chart-farmers'), {
+    chart: Object.assign({ type: 'line', height: 288 }, base),
+    series: [
+      { name: 'New farmers', type: 'column', data: data.farmer_growth.new },
+      { name: 'Cumulative', type: 'line', data: data.farmer_growth.cumulative },
+    ],
+    colors: ['#7BC67B', '#1E5631'],
+    stroke: { width: [0, 3], curve: 'smooth' },
+    plotOptions: { bar: { borderRadius: 4, columnWidth: '46%' } },
+    xaxis: { categories: data.labels, labels: axisStyle },
+    yaxis: [{ labels: axisStyle }, { opposite: true, labels: axisStyle }],
+    legend: { position: 'top', horizontalAlign: 'right', fontSize: '12px' },
+    dataLabels: { enabled: false }, grid, noData: empty,
+  }).render();
+
+  new ApexCharts(document.getElementById('chart-crops'), {
+    chart: Object.assign({ type: 'donut', height: 288 }, base),
+    series: data.crop_distribution.map((c) => c.area),
+    labels: data.crop_distribution.map((c) => c.name),
+    colors: ['#1E5631', '#2E8B49', '#4CAF50', '#7BC67B', '#A5D8A5', '#C9E7C9', '#64748B', '#94A3B8'],
+    legend: { position: 'bottom', fontSize: '12px' },
+    dataLabels: { enabled: false },
+    plotOptions: { pie: { donut: { size: '66%', labels: { show: true,
+      total: { show: true, label: 'Acres', color: '#64748B', fontSize: '12px' } } } } },
+    noData: empty,
+  }).render();
+
+  new ApexCharts(document.getElementById('chart-production'), {
+    chart: Object.assign({ type: 'area', height: 288 }, base),
+    series: [
+      { name: 'Production (t)', data: data.production_trend },
+      { name: 'Revenue (PKR)', data: data.revenue_trend },
+    ],
+    colors: ['#1E5631', '#4CAF50'],
+    stroke: { curve: 'smooth', width: 2 },
+    fill: { type: 'gradient', gradient: { opacityFrom: 0.28, opacityTo: 0.02 } },
+    xaxis: { categories: data.labels, labels: axisStyle },
+    yaxis: [
+      { labels: axisStyle, title: { text: 'tonnes', style: { color: '#64748B' } } },
+      { opposite: true, labels: Object.assign({ formatter: (v) => (v / 1000).toFixed(0) + 'k' }, axisStyle) },
+    ],
+    legend: { position: 'top', horizontalAlign: 'right', fontSize: '12px' },
+    dataLabels: { enabled: false }, grid, noData: empty,
+  }).render();
+
+  new ApexCharts(document.getElementById('chart-yield'), {
+    chart: Object.assign({ type: 'bar', height: 288 }, base),
+    series: [{ name: 't/acre', data: data.yield_by_crop.map((y) => y.yield_per_acre) }],
+    xaxis: { categories: data.yield_by_crop.map((y) => y.name), labels: axisStyle },
+    yaxis: { labels: axisStyle },
+    plotOptions: { bar: { borderRadius: 6, horizontal: true, barHeight: '58%' } },
+    colors: ['#2E8B49'], dataLabels: { enabled: false }, grid, noData: empty,
+  }).render();
+
+  new ApexCharts(document.getElementById('chart-area'), {
+    chart: Object.assign({ type: 'bar', height: 288, stacked: false }, base),
+    series: [
+      { name: 'By soil', data: data.area_by_soil.map((s) => s.area) },
+      { name: 'By irrigation', data: data.area_by_irrigation.map((s) => s.area) },
+    ],
+    xaxis: {
+      categories: data.area_by_soil.map((s) => s.label.replace('_', ' ')),
+      labels: axisStyle,
+    },
+    yaxis: { labels: axisStyle },
+    colors: ['#1E5631', '#7BC67B'],
+    plotOptions: { bar: { borderRadius: 5, columnWidth: '54%' } },
+    legend: { position: 'top', horizontalAlign: 'right', fontSize: '12px' },
+    dataLabels: { enabled: false }, grid, noData: empty,
+  }).render();
+
+  new ApexCharts(document.getElementById('chart-weather'), {
+    chart: Object.assign({ type: 'line', height: 288 }, base),
+    series: [
+      { name: 'Avg temp °C', data: data.weather_impact.map((w) => w.temp) },
+      { name: 'Avg rain mm', data: data.weather_impact.map((w) => w.rain) },
+      { name: 'Avg humidity %', data: data.weather_impact.map((w) => w.humidity) },
+    ],
+    colors: ['#EA580C', '#1E5631', '#4CAF50'],
+    stroke: { curve: 'smooth', width: 2 },
+    xaxis: { categories: data.weather_impact.map((w) => w.month), labels: axisStyle },
+    yaxis: { labels: axisStyle },
+    legend: { position: 'top', horizontalAlign: 'right', fontSize: '12px' },
+    dataLabels: { enabled: false }, grid,
+    noData: { text: 'Weather history builds up as the scheduled refresh runs', style: { color: '#94A3B8' } },
+  }).render();
+})();
+</script>
+{% endblock %}

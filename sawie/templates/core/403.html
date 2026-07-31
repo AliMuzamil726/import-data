@@ -1,0 +1,22 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>403 · SAWIE</title>
+  <link rel="icon" href="{% static 'images/logo.svg' %}" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="{% static 'js/tailwind.config.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/sawie.css' %}">
+</head>
+<body class="grid h-full place-items-center bg-canvas font-sans px-4">
+  <div class="max-w-md text-center">
+    <img src="{% static 'images/logo.svg' %}" alt="SAWIE" class="mx-auto h-12 w-12">
+    <p class="mt-6 text-5xl font-semibold tracking-tight text-brand-600">403</p>
+    <h1 class="mt-2 text-lg font-semibold text-slate-900">You do not have access to this</h1>
+    <p class="mt-2 text-sm text-slate-500">Your role does not include this module. Ask a Super Admin if you need it added.{% if reason %} {{ reason }}{% endif %}</p>
+    <a href="{% url 'core:dashboard' %}" class="mt-6 inline-block rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-500">Back to dashboard</a>
+  </div>
+</body>
+</html>

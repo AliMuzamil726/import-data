@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Crops{% endblock %}
+
+{% block content %}
+<div class="mb-5 flex flex-wrap items-end justify-between gap-3">
+  <div>
+    <h2 class="text-xl font-semibold tracking-tight text-slate-900">Crop cycles</h2>
+    <p class="mt-0.5 text-sm text-slate-500">{{ total_area|floatformat:1 }} acres sown · {{ total_production|floatformat:1 }} tonnes produced</p>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <div class="flex overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card">
+      <a href="{% url 'crops:export' 'csv' %}?{{ request.GET.urlencode }}" class="px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-50">CSV</a>
+      <a href="{% url 'crops:export' 'xlsx' %}?{{ request.GET.urlencode }}" class="border-l border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-50">Excel</a>
+      <a href="{% url 'crops:export' 'pdf' %}?{{ request.GET.urlencode }}" class="border-l border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-50">PDF</a>
+    </div>
+    {% if request.user.can_edit_records %}
+      <a href="{% url 'crops:create' %}" class="rounded-xl bg-brand-600 px-3.5 py-2 text-sm font-medium text-white shadow-card transition hover:bg-brand-500">Add crop cycle</a>
+    {% endif %}
+  </div>
+</div>
+
+<form method="get" class="mb-4 grid grid-cols-1 gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-card sm:grid-cols-[1fr_auto_auto_auto_auto]">
+  <input type="search" name="q" value="{{ query }}" placeholder="Search crop, variety, field or farmer"
+         class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+  <select name="status" class="rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none">
+    <option value="">All statuses</option>
+    {% for value, label in statuses %}<option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <select name="season" class="rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none">
+    <option value="">All seasons</option>
+    {% for value, label in seasons %}<option value="{{ value }}" {% if season == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <select name="category" class="rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none">
+    <option value="">All categories</option>
+    {% for value, label in categories %}<option value="{{ value }}" {% if category == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <div class="flex gap-2">
+    <button type="submit" class="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700">Apply</button>
+    {% if query or status or season or category %}<a href="{% url 'crops:list' %}" class="rounded-xl border border-slate-200 px-4 py-2.5 text-sm text-slate-600 transition hover:bg-slate-50">Clear</a>{% endif %}
+  </div>
+</form>
+
+<div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+  <div class="overflow-x-auto">
+    <table class="data-table w-full text-sm">
+      <thead class="border-b border-slate-100 bg-slate-50/60">
+        <tr>
+          <th class="px-5 py-3 text-left">Crop</th>
+          <th class="px-5 py-3 text-left">Field</th>
+          <th class="px-5 py-3 text-left">Season</th>
+          <th class="px-5 py-3 text-left">Planted</th>
+          <th class="px-5 py-3 text-right">Area</th>
+          <th class="px-5 py-3 text-right">Yield</th>
+          <th class="px-5 py-3 text-left">Status</th>
+          <th class="px-5 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-50">
+        {% for crop in crops %}
+          <tr>
+            <td class="px-5 py-3">
+              <a href="{{ crop.get_absolute_url }}" class="font-medium text-slate-900 hover:text-brand-700">{{ crop.name }}</a>
+              <span class="block text-xs text-slate-400">{{ crop.variety|default:crop.get_category_display }}</span>
+            </td>
+            <td class="px-5 py-3 text-slate-600">
+              <a href="{{ crop.field.get_absolute_url }}" class="hover:text-brand-700">{{ crop.field.code }}</a>
+              <span class="block text-xs text-slate-400">{{ crop.field.farmer.full_name }}</span>
+            </td>
+            <td class="px-5 py-3 text-slate-600">{{ crop.get_season_display }}</td>
+            <td class="px-5 py-3 text-slate-600">{{ crop.planting_date|date:"d M Y" }}</td>
+            <td class="px-5 py-3 text-right tabular-nums">{{ crop.area_acres }} ac</td>
+            <td class="px-5 py-3 text-right tabular-nums">
+              {% if crop.production_tonnes %}{{ crop.yield_per_acre }} t/ac{% else %}—{% endif %}
+            </td>
+            <td class="px-5 py-3">
+              <span class="rounded-full px-2 py-0.5 text-xs font-medium
+                {% if crop.status == 'harvested' %}bg-emerald-50 text-emerald-700
+                {% elif crop.status == 'growing' %}bg-brand-50 text-brand-700
+                {% elif crop.status == 'failed' %}bg-rose-50 text-rose-700
+                {% else %}bg-slate-100 text-slate-600{% endif %}">{{ crop.get_status_display }}</span>
+            </td>
+            <td class="px-5 py-3 text-right">
+              <div class="flex justify-end gap-1">
+                {% if request.user.can_edit_records %}<a href="{% url 'crops:update' crop.pk %}" class="rounded-lg px-2 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-100">Edit</a>{% endif %}
+                {% if request.user.can_delete_records %}<a href="{% url 'crops:delete' crop.pk %}" class="rounded-lg px-2 py-1 text-xs font-medium text-rose-600 transition hover:bg-rose-50">Delete</a>{% endif %}
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" class="px-5 py-14 text-center">
+            <p class="text-sm font-medium text-slate-700">No crop cycles match this search.</p>
+            <p class="mt-1 text-sm text-slate-500">Record what is sown on each field to unlock yield and revenue analytics.</p>
+          </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

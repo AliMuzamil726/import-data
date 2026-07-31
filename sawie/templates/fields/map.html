@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Map{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<style>
+  .sawie-field-label { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .sawie-field-label .sawie-dot { width: 12px; height: 12px; border-radius: 9999px;
+    border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); display: inline-block; flex: 0 0 auto; }
+  .sawie-field-label .sawie-code { font-size: 11px; font-weight: 600; color: #14261A;
+    background: rgba(255,255,255,.9); padding: 1px 5px; border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div x-data="fieldMap()" x-init="mount()" class="flex flex-col gap-4">
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-semibold tracking-tight text-slate-900">Field map</h2>
+      <p class="mt-0.5 text-sm text-slate-500">
+        <span x-text="count"></span> plots shown · <span x-text="acres.toFixed(1)"></span> acres
+      </p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      <input type="search" x-model="search" @input.debounce.300ms="reload()" placeholder="Search field or farmer"
+             class="w-52 rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+      <select x-model="crop" @change="reload()" class="rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none">
+        <option value="">All crops</option>
+        {% for name in crop_names %}<option value="{{ name }}">{{ name }}</option>{% endfor %}
+      </select>
+      <select x-model="health" @change="reload()" class="rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none">
+        <option value="">All health bands</option>
+        {% for value, label in healths %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+      </select>
+      <select x-model="status" @change="reload()" class="rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none">
+        <option value="">All statuses</option>
+        {% for value, label in statuses %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+    <div id="field-map" class="h-[calc(100vh-260px)] min-h-[480px] w-full"></div>
+
+    <div class="pointer-events-none absolute bottom-4 left-4 z-[500] rounded-xl border border-slate-200 bg-white/95 px-4 py-3 shadow-lift backdrop-blur">
+      <p class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Canopy health</p>
+      <ul class="flex flex-col gap-1.5 text-xs text-slate-600">
+        <li class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full" style="background:#2E7D32"></span>Healthy</li>
+        <li class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full" style="background:#F59E0B"></span>Moderate</li>
+        <li class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full" style="background:#EA580C"></span>Poor</li>
+        <li class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full" style="background:#DC2626"></span>Critical</li>
+        <li class="flex items-center gap-2"><span class="h-2.5 w-2.5 rounded-full" style="background:#94A3B8"></span>Not assessed</li>
+      </ul>
+    </div>
+
+    <div x-show="loading" x-cloak class="absolute inset-0 z-[600] grid place-items-center bg-white/60 backdrop-blur-sm">
+      <p class="rounded-xl bg-white px-4 py-2 text-sm text-slate-600 shadow-lift">Loading plots…</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="{% static 'js/geo.js' %}"></script>
+<script>
+function fieldMap() {
+  return {
+    map: null, cluster: null, shapes: null,
+    search: '', crop: '', health: '', status: '',
+    count: 0, acres: 0, loading: true,
+
+    mount() {
+      const layers = SAWIE_GEO.baseLayers();
+      this.map = L.map('field-map', { layers: [layers.Street] }).setView([31.4180, 73.0790], 6);
+      L.control.layers(layers, {}, { position: 'topright' }).addTo(this.map);
+      L.control.scale({ imperial: false }).addTo(this.map);
+
+      this.cluster = L.markerClusterGroup({ maxClusterRadius: 48 }).addTo(this.map);
+      this.shapes = L.featureGroup().addTo(this.map);
+      this.reload();
+    },
+
+    popup(props) {
+      const ndvi = props.ndvi === null ? 'not assessed' : Number(props.ndvi).toFixed(2);
+      return `
+        <div style="min-width:190px">
+          <p style="font-weight:600;color:#0F172A">${props.name}</p>
+          <p style="color:#64748B;font-size:12px;margin-bottom:6px">${props.code} · ${props.farmer}</p>
+          <table style="font-size:12px;color:#334155;width:100%">
+            <tr><td style="color:#64748B">Area</td><td style="text-align:right">${props.area} ac</td></tr>
+            <tr><td style="color:#64748B">Crop</td><td style="text-align:right">${props.crop || '—'}</td></tr>
+            <tr><td style="color:#64748B">Soil</td><td style="text-align:right">${props.soil}</td></tr>
+            <tr><td style="color:#64748B">Irrigation</td><td style="text-align:right">${props.irrigation}</td></tr>
+            <tr><td style="color:#64748B">Index</td><td style="text-align:right">${ndvi}</td></tr>
+          </table>
+          <a href="${props.url}" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:600;color:#1E5631">Open field →</a>
+        </div>`;
+    },
+
+    reload() {
+      this.loading = true;
+      const params = new URLSearchParams();
+      if (this.search) params.set('q', this.search);
+      if (this.crop) params.set('crop', this.crop);
+      if (this.health) params.set('health', this.health);
+      if (this.status) params.set('status', this.status);
+
+      window.sawieFetch('{% url "fields:geojson" %}?' + params.toString())
+        .then((r) => r.json())
+        .then((data) => {
+          this.cluster.clearLayers();
+          this.shapes.clearLayers();
+          this.count = data.features.length;
+          this.acres = data.features.reduce((sum, f) => sum + (f.properties.area || 0), 0);
+
+          data.features.forEach((feature) => {
+            const props = feature.properties || {};
+            const g = feature.geometry;
+            const colour = props.colour || '#5C8A34';
+            // Draw polygon directly from coordinates (reliable).
+            try {
+              if (g && g.type === 'Polygon' && g.coordinates && g.coordinates[0] && g.coordinates[0].length >= 4) {
+                const latlngs = g.coordinates[0].map((c) => [Number(c[1]), Number(c[0])]);
+                L.polygon(latlngs, {
+                  color: colour, weight: 2, fillColor: colour, fillOpacity: 0.28,
+                }).bindPopup(this.popup(props)).addTo(this.shapes);
+              }
+            } catch (e) { /* skip bad polygon */ }
+            // Marker when we have real coordinates.
+            let lat = Number(props.lat), lng = Number(props.lng);
+            if ((!isFinite(lat) || !isFinite(lng)) && g && g.coordinates) {
+              try { const c0 = g.coordinates[0][0]; lng = Number(c0[0]); lat = Number(c0[1]); } catch (e) {}
+            }
+            if (isFinite(lat) && isFinite(lng)) {
+              // A coloured dot with the field CODE next to it (not a number).
+              const label = (props.code || '').toString();
+              const icon = L.divIcon({
+                className: 'sawie-field-label',
+                html: '<span class="sawie-dot" style="background:' + colour + '"></span>' +
+                      '<span class="sawie-code">' + label + '</span>',
+                iconSize: null,
+                iconAnchor: [6, 6],
+              });
+              const marker = L.marker([lat, lng], { icon }).bindPopup(this.popup(props));
+              this.cluster.addLayer(marker);
+            }
+          });
+
+          const bounds = this.shapes.getLayers().length
+            ? this.shapes.getBounds()
+            : this.cluster.getBounds();
+          if (bounds && bounds.isValid()) this.map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+          this.loading = false;
+        })
+        .catch(() => { this.loading = false; });
+    },
+  };
+}
+</script>
+{% endblock %}

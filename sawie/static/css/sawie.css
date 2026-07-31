@@ -1,0 +1,178 @@
+/* SAWIE — styles that sit outside Tailwind's utility layer. */
+
+:root {
+  --sawie-brand: #4A7129;
+  --sawie-brand-mid: #5C8A34;
+  --sawie-accent: #9DC46A;
+  --sawie-canvas: #F6F7F3;
+  --sawie-forest: #14261A;
+  --sawie-border: #E5E7EB;
+}
+
+[x-cloak] { display: none !important; }
+
+::selection { background: rgba(157, 196, 106, 0.35); }
+
+/* Scrollbars */
+* { scrollbar-width: thin; scrollbar-color: #CBD5E1 transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+*::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+/* Keyboard focus stays visible everywhere */
+:focus-visible {
+  outline: 2px solid var(--sawie-brand-mid);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Login page atmosphere — warm natural greens */
+.auth-canvas {
+  background:
+    radial-gradient(1100px 520px at 15% -10%, rgba(123, 168, 78, 0.30), transparent 60%),
+    radial-gradient(900px 480px at 85% 110%, rgba(157, 196, 106, 0.22), transparent 60%),
+    linear-gradient(155deg, #14261A 0%, #1E3421 45%, #2F471C 100%);
+}
+.auth-card {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* The one flourish: a slow contour drift behind the sign-in card,
+   echoing field boundaries on a map. */
+.auth-contours {
+  position: absolute;
+  inset: -20%;
+  background-image:
+    repeating-radial-gradient(circle at 30% 40%, rgba(255,255,255,0.045) 0 1px, transparent 1px 46px),
+    repeating-radial-gradient(circle at 72% 68%, rgba(255,255,255,0.035) 0 1px, transparent 1px 62px);
+  animation: contour-drift 42s linear infinite;
+  pointer-events: none;
+}
+@keyframes contour-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(-1.5%, 1.5%, 0) scale(1.03); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+.fade-up { animation: fade-up 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-contours { animation: none; }
+  .fade-up { animation: none; }
+  * { transition-duration: 0.01ms !important; }
+}
+
+/* Leaflet takes on the platform's rounding and typography */
+.leaflet-container { font-family: 'Inter', sans-serif; border-radius: 1rem; }
+.leaflet-popup-content-wrapper { border-radius: 0.875rem; box-shadow: 0 12px 32px -12px rgba(20,38,26,0.32); }
+.leaflet-popup-content { margin: 12px 14px; font-size: 13px; }
+.leaflet-bar a { border-radius: 8px !important; }
+
+/* Tables */
+.data-table th {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748B;
+}
+.data-table tbody tr { transition: background-color 120ms ease; }
+.data-table tbody tr:hover { background-color: #F6F7F3; }
+
+/* Sidebar collapse: when the shell sets data-sidebar="collapsed", the labels
+   fade out and the rail narrows. Handled mostly by Tailwind classes bound in
+   base.html; this just hides overflow text cleanly. */
+.sidebar-label { transition: opacity 150ms ease; }
+
+/* Print: reports and detail pages */
+@media print {
+  aside, header, footer, .no-print { display: none !important; }
+  body { background: #fff; }
+  main { padding: 0 !important; }
+}
+
+/* ============================================================
+   THEME SYSTEM — dark/light mode + accent colour
+   Driven by <html data-mode="dark|light" data-accent="green|blue|amber|violet">
+   Set from the topbar theme switcher (see sawie.js).
+   ============================================================ */
+
+/* Accent: remap the brand CSS variables. Tailwind's brand-* utility
+   classes read these via the config, but inline styles and our own
+   components use var(--sawie-brand*). We also override common bg/text. */
+:root[data-accent="blue"] {
+  --sawie-brand: #1D4ED8; --sawie-brand-mid: #2563EB; --sawie-accent: #60A5FA;
+}
+:root[data-accent="amber"] {
+  --sawie-brand: #B45309; --sawie-brand-mid: #D97706; --sawie-accent: #FBBF24;
+}
+:root[data-accent="violet"] {
+  --sawie-brand: #6D28D9; --sawie-brand-mid: #7C3AED; --sawie-accent: #A78BFA;
+}
+
+/* Accent overrides for the Tailwind brand utilities most used in the UI.
+   (CDN Tailwind can't be recompiled, so we override the rendered classes.) */
+:root[data-accent="blue"]   .bg-brand-600 { background-color:#2563EB !important; }
+:root[data-accent="blue"]   .bg-brand-500 { background-color:#3B82F6 !important; }
+:root[data-accent="blue"]   .hover\:bg-brand-500:hover { background-color:#3B82F6 !important; }
+:root[data-accent="blue"]   .text-brand-700 { color:#1D4ED8 !important; }
+:root[data-accent="blue"]   .bg-brand-50 { background-color:#EFF6FF !important; }
+:root[data-accent="amber"]  .bg-brand-600 { background-color:#D97706 !important; }
+:root[data-accent="amber"]  .bg-brand-500 { background-color:#F59E0B !important; }
+:root[data-accent="amber"]  .hover\:bg-brand-500:hover { background-color:#F59E0B !important; }
+:root[data-accent="amber"]  .text-brand-700 { color:#B45309 !important; }
+:root[data-accent="amber"]  .bg-brand-50 { background-color:#FFFBEB !important; }
+:root[data-accent="violet"] .bg-brand-600 { background-color:#7C3AED !important; }
+:root[data-accent="violet"] .bg-brand-500 { background-color:#8B5CF6 !important; }
+:root[data-accent="violet"] .hover\:bg-brand-500:hover { background-color:#8B5CF6 !important; }
+:root[data-accent="violet"] .text-brand-700 { color:#6D28D9 !important; }
+:root[data-accent="violet"] .bg-brand-50 { background-color:#F5F3FF !important; }
+
+/* ---------- DARK MODE ---------- */
+/* We invert the light greys used across the app to dark equivalents.
+   Targeted overrides keep text readable and cards distinct. */
+:root[data-mode="dark"] body { background:#0E1512 !important; color:#E5E7EB !important; }
+
+:root[data-mode="dark"] .bg-canvas,
+:root[data-mode="dark"] .bg-white\/85,
+:root[data-mode="dark"] .bg-white { background-color:#151E1A !important; }
+:root[data-mode="dark"] .bg-slate-50,
+:root[data-mode="dark"] .bg-slate-50\/60,
+:root[data-mode="dark"] .bg-slate-50\/50,
+:root[data-mode="dark"] .bg-slate-100 { background-color:#1C2620 !important; }
+
+:root[data-mode="dark"] .border-slate-200,
+:root[data-mode="dark"] .border-slate-100,
+:root[data-mode="dark"] .border-slate-50 { border-color:#26332B !important; }
+
+:root[data-mode="dark"] .text-slate-900 { color:#F1F5F4 !important; }
+:root[data-mode="dark"] .text-slate-800 { color:#E5EAE8 !important; }
+:root[data-mode="dark"] .text-slate-700 { color:#D3DAD7 !important; }
+:root[data-mode="dark"] .text-slate-600 { color:#B4BEB9 !important; }
+:root[data-mode="dark"] .text-slate-500 { color:#94A39B !important; }
+:root[data-mode="dark"] .text-slate-400 { color:#7A8880 !important; }
+
+:root[data-mode="dark"] .shadow-card,
+:root[data-mode="dark"] .shadow-lift { box-shadow:0 1px 3px rgba(0,0,0,.5) !important; }
+
+/* Inputs in dark mode */
+:root[data-mode="dark"] input,
+:root[data-mode="dark"] select,
+:root[data-mode="dark"] textarea {
+  background-color:#1C2620 !important; color:#E5E7EB !important; border-color:#33463B !important;
+}
+
+/* Sidebar already dark (forest) — nudge it slightly darker for contrast */
+:root[data-mode="dark"] aside.bg-forest { background-color:#0B1712 !important; }
+
+/* Hover states on light rows */
+:root[data-mode="dark"] .hover\:bg-slate-50:hover,
+:root[data-mode="dark"] .hover\:bg-brand-50\/40:hover { background-color:#1C2620 !important; }
+:root[data-mode="dark"] .data-table tbody tr:hover { background-color:#1C2620 !important; }

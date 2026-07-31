@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Weather{% endblock %}
+
+{% block content %}
+<div class="mb-5 flex flex-wrap items-end justify-between gap-3">
+  <div>
+    <h2 class="text-xl font-semibold tracking-tight text-slate-900">Weather</h2>
+    <p class="mt-0.5 text-sm text-slate-500">
+      {% if field %}Conditions at {{ field.name }} ({{ field.latitude }}, {{ field.longitude }}){% else %}Map a field to see its forecast{% endif %}
+    </p>
+  </div>
+  <form method="get" class="flex flex-wrap gap-2">
+    <select name="field" onchange="this.form.submit()"
+            class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-card focus:border-brand-500 focus:outline-none">
+      {% for option in fields %}
+        <option value="{{ option.pk }}" {% if field and field.pk == option.pk %}selected{% endif %}>{{ option.name }} — {{ option.code }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" name="refresh" value="1"
+            class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-700 shadow-card transition hover:border-brand-300">Refresh now</button>
+    <a href="{% url 'weather:export' 'csv' %}" class="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-700 shadow-card transition hover:border-brand-300">Export CSV</a>
+  </form>
+</div>
+
+{% if record %}
+  <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+    <div class="rounded-2xl border border-slate-200 bg-gradient-to-br from-brand-600 to-forest p-6 text-white shadow-card">
+      <p class="text-sm text-white/70">{{ field.name }}</p>
+      <p class="mt-2 text-5xl font-semibold tracking-tight">{{ record.temperature_c|floatformat:0 }}°C</p>
+      <p class="mt-1 text-sm text-white/80">{{ record.condition_text }} · feels like {{ record.feels_like_c|floatformat:0 }}°C</p>
+      <div class="mt-6 grid grid-cols-2 gap-3 text-sm">
+        <div class="rounded-xl bg-white/10 px-3 py-2.5">
+          <p class="text-white/60">Humidity</p><p class="text-lg font-medium">{{ record.humidity_pct|floatformat:0 }}%</p>
+        </div>
+        <div class="rounded-xl bg-white/10 px-3 py-2.5">
+          <p class="text-white/60">Rain chance</p><p class="text-lg font-medium">{{ record.rain_probability_pct|default:0|floatformat:0 }}%</p>
+        </div>
+        <div class="rounded-xl bg-white/10 px-3 py-2.5">
+          <p class="text-white/60">Wind</p><p class="text-lg font-medium">{{ record.wind_speed_kmh|floatformat:0 }} km/h</p>
+        </div>
+        <div class="rounded-xl bg-white/10 px-3 py-2.5">
+          <p class="text-white/60">UV index</p><p class="text-lg font-medium">{{ record.uv_index|default:0|floatformat:1 }}</p>
+        </div>
+      </div>
+      <p class="mt-5 text-xs text-white/50">Updated {{ record.fetched_at|date:"d M Y, H:i" }} · {{ record.source }}</p>
+    </div>
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-card lg:col-span-2">
+      <h3 class="mb-4 text-sm font-semibold text-slate-900">Seven-day outlook</h3>
+      <div id="forecast-chart" class="h-64"></div>
+    </div>
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+    {% for day in forecast %}
+      <div class="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-card">
+        <p class="text-xs font-medium uppercase tracking-wider text-slate-400">{{ day.date }}</p>
+        <p class="mt-2 text-lg font-semibold text-slate-900">{{ day.temp_max|floatformat:0 }}°</p>
+        <p class="text-xs text-slate-500">{{ day.temp_min|floatformat:0 }}° low</p>
+        <p class="mt-2 truncate text-xs text-slate-600" title="{{ day.condition }}">{{ day.condition }}</p>
+        <p class="mt-1 text-xs text-brand-700">{{ day.rain_probability|default:0|floatformat:0 }}% rain</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+    <h3 class="mb-3 text-sm font-semibold text-slate-900">What this means for the field</h3>
+    <ul class="flex flex-col gap-2">
+      {% for note in advisories %}
+        <li class="flex items-start gap-2.5 rounded-xl px-3 py-2.5 text-sm
+          {% if note.level == 'critical' %}bg-rose-50 text-rose-900
+          {% elif note.level == 'warning' %}bg-amber-50 text-amber-900
+          {% elif note.level == 'success' %}bg-emerald-50 text-emerald-900
+          {% else %}bg-slate-50 text-slate-700{% endif %}">
+          <span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-60"></span>{{ note.text }}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% else %}
+  <div class="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-card">
+    <p class="text-sm font-medium text-slate-700">No weather to show yet.</p>
+    <p class="mx-auto mt-1 max-w-md text-sm text-slate-500">
+      Weather is pulled per field using its coordinates. Map a field first, then come back here.
+    </p>
+    <a href="{% url 'fields:create' %}" class="mt-4 inline-block rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-500">Add a field</a>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if record %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.54.1/dist/apexcharts.min.js"></script>
+{{ forecast_json|json_script:"forecast-data" }}
+<script>
+(function () {
+  const forecast = JSON.parse(document.getElementById('forecast-data').textContent);
+  new ApexCharts(document.getElementById('forecast-chart'), {
+    chart: { height: 256, type: 'line', toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
+    series: [
+      { name: 'Max °C', type: 'line', data: forecast.map((d) => d.temp_max) },
+      { name: 'Min °C', type: 'line', data: forecast.map((d) => d.temp_min) },
+      { name: 'Rain mm', type: 'column', data: forecast.map((d) => d.rain_mm) },
+    ],
+    colors: ['#EA580C', '#4CAF50', '#1E5631'],
+    stroke: { width: [3, 3, 0], curve: 'smooth' },
+    plotOptions: { bar: { borderRadius: 4, columnWidth: '32%' } },
+    xaxis: { categories: forecast.map((d) => d.date), labels: { style: { colors: '#64748B', fontSize: '11px' } } },
+    yaxis: [
+      { title: { text: '°C', style: { color: '#64748B' } }, labels: { style: { colors: '#64748B' } } },
+      { show: false },
+      { opposite: true, title: { text: 'mm', style: { color: '#64748B' } }, labels: { style: { colors: '#64748B' } } },
+    ],
+    legend: { position: 'top', horizontalAlign: 'right', fontSize: '12px' },
+    grid: { borderColor: '#E5E7EB', strokeDashArray: 4 },
+  }).render();
+})();
+</script>
+{% endif %}
+{% endblock %}

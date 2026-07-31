@@ -1,0 +1,79 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SAWIE{% endblock %} · SAWIE</title>
+  <meta name="description" content="SAWIE — agricultural intelligence platform for farmer, field, crop and satellite operations.">
+  <link rel="icon" href="{% static 'images/logo.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="{% static 'js/tailwind.config.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'css/sawie.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body class="h-full bg-canvas font-sans text-slate-800 antialiased"
+      x-data="sawieShell()" x-init="init()">
+
+  <div class="flex min-h-full">
+    {% include "partials/sidebar.html" %}
+
+    <!-- Left padding follows the sidebar width: 248px expanded, 76px collapsed -->
+    <div class="flex min-w-0 flex-1 flex-col transition-all duration-200"
+         :class="collapsed ? 'lg:pl-[76px]' : 'lg:pl-[248px]'">
+      {% include "partials/topbar.html" %}
+
+      <main class="flex-1 px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+        {% include "partials/messages.html" %}
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="border-t border-slate-200 px-4 py-4 text-xs text-slate-500 sm:px-6 lg:px-8">
+        SAWIE — Agricultural Intelligence Platform · signed in as
+        {{ request.user.display_name }} ({{ request.user.get_role_display }})
+      </footer>
+    </div>
+  </div>
+
+  <!-- Live toasts pushed over the notifications WebSocket -->
+  <div class="pointer-events-none fixed bottom-4 right-4 z-50 flex w-full max-w-sm flex-col gap-2">
+    <template x-for="toast in toasts" :key="toast.id">
+      <div class="pointer-events-auto rounded-2xl border bg-white p-4 shadow-lift transition"
+           :class="{
+             'border-emerald-200': toast.level === 'success',
+             'border-amber-200': toast.level === 'warning',
+             'border-rose-200': toast.level === 'critical',
+             'border-slate-200': toast.level === 'info'
+           }"
+           x-transition:enter="transition ease-out duration-200"
+           x-transition:enter-start="translate-y-2 opacity-0"
+           x-transition:leave="transition ease-in duration-150"
+           x-transition:leave-end="opacity-0">
+        <div class="flex items-start gap-3">
+          <span class="mt-1 h-2 w-2 shrink-0 rounded-full"
+                :class="{
+                  'bg-emerald-500': toast.level === 'success',
+                  'bg-amber-500': toast.level === 'warning',
+                  'bg-rose-500': toast.level === 'critical',
+                  'bg-slate-400': toast.level === 'info'
+                }"></span>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold text-slate-900" x-text="toast.title"></p>
+            <p class="mt-0.5 text-xs text-slate-600" x-text="toast.body"></p>
+            <a x-show="toast.url" :href="toast.url"
+               class="mt-1 inline-block text-xs font-medium text-brand-700 hover:underline">Open</a>
+          </div>
+          <button type="button" @click="dismiss(toast.id)"
+                  class="text-slate-400 transition hover:text-slate-600" aria-label="Dismiss">&times;</button>
+        </div>
+      </div>
+    </template>
+  </div>
+
+  <script src="{% static 'js/sawie.js' %}"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

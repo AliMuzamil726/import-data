@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex flex-wrap items-end justify-between gap-3 dash-rise">
+  <div>
+    <h2 class="text-xl font-semibold tracking-tight text-slate-900">{% now "l" %} overview</h2>
+    <p class="mt-0.5 text-sm text-slate-500">Live figures from your registry, mapped plots and processed imagery.</p>
+  </div>
+</div>
+
+<section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+  {% for card in cards %}
+    <article class="dash-rise dash-card group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-card hover:shadow-lift"
+             style="animation-delay: {{ forloop.counter0 }}00ms">
+      <div class="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-brand-50 opacity-0 transition group-hover:opacity-100"></div>
+      <div class="relative flex items-start justify-between">
+        <div class="min-w-0">
+          <p class="text-xs font-medium uppercase tracking-wider text-slate-400">{{ card.label }}</p>
+          <p class="soft-pop mt-1.5 truncate text-2xl font-semibold text-slate-900"
+             data-countup="{{ card.value }}" data-prefix="{{ card.prefix|default:'' }}" data-suffix="{{ card.suffix }}">
+            {{ card.prefix|default:"" }}{{ card.value|intcomma }}{{ card.suffix }}
+          </p>
+        </div>
+        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700 transition group-hover:scale-110"
+              data-icon="{{ card.icon }}"></span>
+      </div>
+      <div class="relative mt-3 flex items-center justify-between gap-2">
+        <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium
+          {% if card.change_is_share %}bg-slate-100 text-slate-600
+          {% elif card.change > 0 %}bg-brand-50 text-brand-700
+          {% elif card.change < 0 %}bg-rose-50 text-rose-700
+          {% else %}bg-slate-100 text-slate-500{% endif %}">
+          {% if not card.change_is_share %}{% if card.change > 0 %}▲{% elif card.change < 0 %}▼{% else %}—{% endif %}{% endif %}
+          {{ card.change }}%
+        </span>
+        <div class="h-8 w-24" id="spark-{{ card.key }}"></div>
+      </div>
+      <p class="relative mt-2 truncate text-xs text-slate-400">{{ card.caption }}</p>
+    </article>
+  {% endfor %}
+</section>
+
+<section class="mt-6 dash-rise" style="animation-delay: 300ms">
+  <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-3.5">
+      <div>
+        <h3 class="text-sm font-semibold text-slate-900">
+          {% if search %}Search results{% else %}All farmers{% endif %}
+        </h3>
+        <p class="text-xs text-slate-400">
+          {% if search %}Matching "{{ search }}" · {{ page_obj.paginator.count|intcomma }} found
+          {% else %}{{ page_obj.paginator.count|intcomma }} registered · page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}{% endif %}
+        </p>
+      </div>
+      <form method="get" class="flex items-center gap-2">
+        <input type="search" name="q" value="{{ search }}" placeholder="Search farmer, SAWiE ID, CNIC…"
+               class="w-56 rounded-xl border border-slate-200 px-3.5 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+        <button type="submit" class="rounded-xl bg-brand-600 px-3.5 py-2 text-sm font-medium text-white transition hover:bg-brand-500">Search</button>
+        {% if search %}<a href="{% url 'core:dashboard' %}" class="rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-50">Clear</a>{% endif %}
+      </form>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="data-table w-full text-sm">
+        <thead class="border-b border-slate-100 bg-slate-50/60">
+          <tr>
+            <th class="px-5 py-2.5 text-left">SAWiE ID</th>
+            <th class="px-5 py-2.5 text-left">Farmer</th>
+            <th class="px-5 py-2.5 text-left">Location</th>
+            <th class="px-5 py-2.5 text-left">Crops</th>
+            <th class="px-5 py-2.5 text-right">Fields</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50">
+          {% for farmer in recent_farmers %}
+            <tr class="dash-row cursor-pointer transition hover:bg-brand-50/40"
+                style="animation-delay: {{ forloop.counter0 }}0ms"
+                onclick="window.location='{{ farmer.get_absolute_url }}'">
+              <td class="px-5 py-3">
+                <span class="rounded-lg bg-brand-50 px-2 py-1 text-xs font-semibold text-brand-700">{{ farmer.sawie_id|default:"—" }}</span>
+              </td>
+              <td class="px-5 py-3">
+                <div class="flex items-center gap-3">
+                  {% if farmer.profile_image %}
+                    <img src="{{ farmer.profile_image.url }}" alt="" class="h-9 w-9 rounded-full object-cover">
+                  {% else %}
+                    <span class="grid h-9 w-9 place-items-center rounded-full bg-brand-50 text-xs font-semibold text-brand-700">{{ farmer.initials }}</span>
+                  {% endif %}
+                  <div class="min-w-0">
+                    <span class="block truncate font-medium text-slate-900">{{ farmer.full_name }}</span>
+                    <span class="block truncate text-xs text-slate-400">s/o {{ farmer.father_name|default:"—" }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="px-5 py-3 text-slate-600">
+                {{ farmer.city }}{% if farmer.village %}<span class="block text-xs text-slate-400">{{ farmer.village }}</span>{% endif %}
+              </td>
+              <td class="px-5 py-3 text-slate-600">
+                {% for field in farmer.fields.all %}{% for crop in field.crops.all %}{% if crop.status == 'growing' or crop.status == 'planned' %}<span class="mr-1 inline-block rounded-md bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600">{{ crop.name }}</span>{% endif %}{% endfor %}{% empty %}<span class="text-slate-400">—</span>{% endfor %}
+              </td>
+              <td class="px-5 py-3 text-right tabular-nums text-slate-700">{{ farmer.field_count }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="px-5 py-12 text-center">
+              <p class="text-sm font-medium text-slate-700">{% if search %}No farmers match "{{ search }}".{% else %}No farmers registered yet.{% endif %}</p>
+            </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if is_paginated %}
+      <div class="flex items-center justify-between border-t border-slate-100 px-5 py-3 text-sm">
+        <span class="text-slate-500">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        <div class="flex gap-1.5">
+          {% if page_obj.has_previous %}
+            <a href="?{% if search %}q={{ search }}&{% endif %}page={{ page_obj.previous_page_number }}"
+               class="rounded-lg border border-slate-200 px-3 py-1.5 text-slate-600 transition hover:bg-slate-50">← Prev</a>
+          {% endif %}
+          {% if page_obj.has_next %}
+            <a href="?{% if search %}q={{ search }}&{% endif %}page={{ page_obj.next_page_number }}"
+               class="rounded-lg border border-slate-200 px-3 py-1.5 text-slate-600 transition hover:bg-slate-50">Next →</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.54.1/dist/apexcharts.min.js"></script>
+{{ cards_json|json_script:"cards-data" }}
+<script>
+(function () {
+  const cards = JSON.parse(document.getElementById('cards-data').textContent);
+  cards.forEach(function (card) {
+    const node = document.getElementById('spark-' + card.key);
+    if (!node) return;
+    new ApexCharts(node, {
+      chart: { type: 'area', height: 32, sparkline: { enabled: true }, animations: { enabled: true, speed: 800 } },
+      series: [{ name: card.key, data: card.series }],
+      stroke: { curve: 'smooth', width: 2 },
+      fill: { type: 'gradient', gradient: { opacityFrom: 0.35, opacityTo: 0 } },
+      colors: [card.change < 0 ? '#DC2626' : '#5C8A34'],
+      tooltip: { enabled: false },
+    }).render();
+  });
+})();
+</script>
+{% endblock %}
